@@ -5,16 +5,40 @@ import BookList from '../components/BookList';
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const loadBooks = async () => {
-    const res = await fetch('/api/books');
-    const data = await res.json();
-    setBooks(data);
+    try {
+      const res = await fetch('/api/books', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin', // gunakan same-origin agar cookie NextAuth dikirim di Next.js
+      });
+      if (!res.ok) {
+        setBooks([]);
+        setError('Gagal mengambil data buku.');
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setBooks(Array.isArray(data) ? data : []);
+      setError(null);
+    } catch (err) {
+      setBooks([]);
+      setError('Gagal mengambil data buku.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadBooks();
   }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
