@@ -1,4 +1,4 @@
-export default function BookList({ books, onDelete }) {
+export default function BookList({ books = [], onDelete }) {
   const handleDelete = async (id) => {
     if (confirm('Hapus buku ini?')) {
       await fetch(`/api/books/${id}`, { method: 'DELETE' });
